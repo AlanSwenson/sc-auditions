@@ -1,0 +1,259 @@
+<style>
+.content .container{
+  width:100%;
+  padding:0;
+}
+</style>
+<img src="/img/auditions-new-proj-banner.jpg" class="img-responsive" style="width:100%;height:auto" alt="studio center auditions banner">
+<div class="row">
+  <div class="col-md-8 col-md-offset-2" style="padding-bottom:75px"><section data-ng-controller="ClientsController" data-ng-init="find();findOne();curRatings()">
+	<div class="row create-project">
+		<div class="col-md-12">
+			<div class="text-center">
+				<p>
+					<a href="#!/clients/new-audition-form" target="_blank"><img style="display:block;margin:0 auto" class="img-responsive" src="/img/new-project-button.png" alt="new project button"></a>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="row" style="margin-top:20px">
+		<div class="col-md-12">
+			<select ng-model="selectedProject" ng-init="selectedProject = ''" class="form-control" ng-change="findOneById(selectedProject)">
+				<option value="">Pick Your Project</option>
+				<option ng-repeat="project in projects" value="{{project._id}}" >{{project.title}} Due {{project.estimatedCompletionDate | date:'short'}} EST</option>
+			</select>
+		</div>
+	</div>
+
+	<div ng-if="project.title">
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-header jumbotron text-center" style="border:10px solid #e1e1e1;border-radius:0" ng-class="{redBG: project.status == 'In Progress' && checkPassed(project.estimatedCompletionDate), greenBg: project.status == 'Booked', lgreenBG: project.status == 'Closed - Pending Client Decision', orangeBG: project.status == 'On Hold', lgray: project.status == 'Cancelled', mgray: project.status == 'ReAuditioned', gray: project.status == 'Dead', blueBg: project.status == 'In Progress' && compareDates(project.estimatedCompletionDate),lblueBG: project.status == 'In Progress', yellowBg: project.sounders == 'No Sounders - Approved By William' && compareDates(project.estimatedCompletionDate), lyellowBg: project.sounders == 'No Sounders - Approved By William'}">
+					<p><strong>{{::project.title}} Due {{::project.estimatedCompletionDate | amDateFormat:'MM/DD/YY h:mm:ss a'}} EST
+						- <span ng-if="project.status[0] != 'In Progress'">Auditions Complete</span><span ng-if="project.status[0] == 'In Progress'">{{::project.status[0]}}</span></strong></p>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="row audition" ng-if="project.auditions.length == 0 && projAuditions.length == 0">
+			<p style="text-align:center"><strong>We are working hard on your auditions, please check back soon as we will be posting them throughout the day.</strong></p>
+		</div>
+
+		<div class="row audition" ng-if="project.auditions.length > 0 || projAuditions.length > 0">
+
+			<div class="panel panel-default">
+
+				<div class="panel-body">
+					<div class="row">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<tr>
+									<th>Select</th>
+									<!--<th>#</th>-->
+									<th>
+										<span><a href="" ng-click="updatePred(predicate == 'file.name' ? '-file.name' : 'file.name'); reverse=false">Name</a></span>
+										<span ng-if="predicate == '-file.name'">(^)</span>
+										<span ng-if="predicate == 'file.name'">(V)</span> (Click to download)
+									</th>
+									<th class="rating-clmn">
+										<span><a href="" ng-click="updatePred(predicate == 'curRating' ? '-curRating' : 'curRating'); reverse=false">Rating</a></span>
+										<span ng-if="predicate == '-curRating'">(^)</span>
+										<span ng-if="predicate == 'curRating'">(V)</span>
+									</th>
+									<th style="width:150px">Playback</th>
+									<th>
+										<span><a href="" ng-click="updatePred(predicate == 'favorite' ? '-favorite' : 'favorite'); reverse=false">Favorite</a></span>
+										<span ng-if="predicate == '-favorite'">(^)</span>
+										<span ng-if="predicate == 'favorite'">(V)</span>
+									</th>
+									<th>Hide</th>
+								</tr>
+								
+							<!-- new client auditions display method -->
+							<tr ng-repeat="(key, audition) in projAuditions | filter:{published:true} | orderBy:predicate:reverse" ng-if="isDisplayedSingle(audition) && (audition.filecheck === 1 || (audition.filecheckdate === undefined || audition.filecheckdate === ''))">
+								<td>
+									<input style="-ms-transform: scale(2);-moz-transform: scale(2);-webkit-transform: scale(2);-o-transform: scale(2);margin:10px" ng-if="!audition.booked" type="checkbox" ng-click="updateSelectedSingle(audition)" ng-checked="checkSelectedSingle(audition)">
+
+									<img ng-if="audition.booked" src="/img/green-check.png" style="width:30px;height:auto">
+								</td>
+								<td>
+									<a href="/res/auditions/{{::project._id}}/{{::audition.file.name | encodeUri}}" target="_blank" data-ng-bind="audition.file.name" class="inline-playable" download="{{::audition.file.name}}">ngAudio</a>
+								</td>
+								<td>
+									<rating ng-model="audition.curRating" readonly="false" ng-click="updateRatingSingle(audition)" max="max" on-leave="overStar = lookUpRatingSingle(audition)" on-hover="hoveringOver(value,key)"></rating>
+								</td>
+								<td>
+									<span ng-show="verifyAudioSingle(audition)">
+										<button ng-click="playAudioSingle(key, audition)" class="btn btn-primary">
+                      						<span ng-if="lastAudioID == key && audioStatus == 1">
+												<img src="/img/Aqua-Pause-icon.png" style="width:35px;height:auto" alt="pause icon">
+												<div ng-if="!audio.mobile">
+													<input class="form-control" type="range" min="0" max="1" step="0.01" ng-model="audio.progress">
+												</div>
+											</span>
+											<span ng-if="lastAudioID != key || audioStatus != 1">
+												<img src="/img/aqua-play-icon.png" style="width:35px;height:auto" alt="play icon">
+											</span>
+										</button>
+										<button ng-click="stopAudio()" class="btn btn-primary" ng-if="lastAudioID == key && audioStatus == 1" ng-show="!audio.mobile">
+											<img src="/img/Aqua-Stop-icon.png" style="width:35px;height:auto" alt="stop icon">
+										</button>
+									</span>
+								</td>
+								<td style="text-align:center">
+									<span ng-if="audition.favorite == 1">
+										<a href="" ng-click="updateFavoriteSingle(audition)"><img style="width:35px;height:auto" src="/img/gold-trophy.png" alt="favorited audition"></a>
+									</span>
+									<span ng-if="audition.favorite != 1">
+										<a href="" ng-click="updateFavoriteSingle(audition)"><img style="width:35px;height:auto" src="/img/gray-trophy.png" alt="favorited audition"></a>
+									</span>
+								</td>
+								<td>
+									<button ng-click="hideAuditionSingle(audition)" ng-show="audition.hidden == false || audition.hidden == undefined" class="btn btn-primary">Hide</button>
+									<button ng-click="showAuditionSingle(audition)" ng-show="audition.hidden == true" class="btn btn-danger">Show</button>
+								</td>
+
+							</tr>
+
+							<!-- old client auditions display method -->
+							<tr ng-repeat="(key, audition) in project.auditions | filter:{published:true} | orderBy:predicate:reverse" ng-if="isDisplayed(audition.file.path) && (audition.filecheck === 1 || (audition.filecheckdate === undefined || audition.filecheckdate === ''))">
+								<td>
+									<input style="-ms-transform: scale(2);-moz-transform: scale(2);-webkit-transform: scale(2);-o-transform: scale(2);margin:10px" ng-if="!audition.booked" type="checkbox" ng-click="updateSelected(audition.file.path)" ng-checked="checkSelected(audition.file.path)">
+
+									<img ng-if="audition.booked" src="/img/green-check.png" style="width:30px;height:auto">
+								</td>
+								<!--<td>
+									<strong>{{key+1}}.</strong>
+								</td>-->
+								<td>
+									<a href="/res/auditions/{{::project._id}}/{{::audition.file.name | encodeUri}}" target="_blank" data-ng-bind="audition.file.name" class="inline-playable" download="{{::audition.file.name}}">ngAudio</a>
+								</td>
+								<td>
+									<rating ng-model="audition.curRating" readonly="false" ng-click="updateRating(audition.file.path, false)" max="max" on-leave="overStar = lookUpRating(key)" on-hover="hoveringOver(value,key)"></rating>
+								</td>
+								<td>
+									<span ng-show="verifyAudio(key)">
+										<button ng-click="playAudio(key, audition.file.name)" class="btn btn-primary">
+                      <span ng-if="lastAudioID == key && audioStatus == 1">
+												<img src="/img/Aqua-Pause-icon.png" style="width:35px;height:auto" alt="pause icon">
+												<div ng-if="!audio.mobile">
+													<input class="form-control" type="range" min="0" max="1" step="0.01" ng-model="audio.progress">
+												</div>
+											</span>
+											<span ng-if="lastAudioID != key || audioStatus != 1">
+												<img src="/img/aqua-play-icon.png" style="width:35px;height:auto" alt="play icon">
+											</span>
+										</button>
+										<button ng-click="stopAudio()" class="btn btn-primary" ng-if="lastAudioID == key && audioStatus == 1" ng-show="!audio.mobile">
+											<img src="/img/Aqua-Stop-icon.png" style="width:35px;height:auto" alt="stop icon">
+										</button>
+									</span>
+								</td>
+								<td style="text-align:center">
+									<span ng-if="audition.favorite == 1">
+										<a href="" ng-click="updateFavorite(audition.file.path)"><img style="width:35px;height:auto" src="/img/gold-trophy.png" alt="favorited audition"></a>
+									</span>
+									<span ng-if="audition.favorite != 1">
+										<a href="" ng-click="updateFavorite(audition.file.path)"><img style="width:35px;height:auto" src="/img/gray-trophy.png" alt="favorited audition"></a>
+									</span>
+								</td>
+								<td>
+									<button ng-click="hideAudition(audition.file.path)" ng-show="audition.hidden == false || audition.hidden == undefined" class="btn btn-primary">Hide</button>
+									<button ng-click="showAudition(audition.file.path)" ng-show="audition.hidden == true" class="btn btn-danger">Show</button>
+								</td>
+
+							</tr>
+						</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<style>
+				.rating-clmn{
+					width:145px;
+				}
+				.glyphicon-star, .glyphicon-star-empty {
+					font-size: 25px;
+				}
+				.table{
+					font-size: 20px;
+				}
+				@media(max-width:1000px){
+					.rating-clmn{
+						width:90px;
+					}
+					.glyphicon-star, .glyphicon-star-empty {
+					font-size: 14px;
+					}
+					.table{
+						font-size: 14px;
+					}
+				}
+			</style>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row">
+						<div class="col-md-4" style="text-align:center">
+							<a href="" class="btn btn-primary" ng-click="downloadAllAuditions()">Download All</a>
+							<div ng-if="bookedShow()">
+								<a href="" class="btn btn-primary" ng-click="downloadBookedAuditions()">Download Booked</a>
+							</div>
+						</div>
+
+						<div class="col-md-4" style="text-align:center">
+							<div ng-if="bookSelectedShow()">
+								<a href="" class="btn btn-primary" ng-click="downloadSelectedAuditions()">Download Selected/Booked</a>
+								<a href="" ng-if="bookShow()" class="btn btn-primary" ng-click="bookSelectedAuditions()">Book Selected</a>
+							</div>
+						</div>
+
+						<div class="col-md-4" style="text-align:center">
+              <p>{{hiddenAudsCnt()}} Audition(s) Currently Hidden</p>
+							<a href="" ng-show="hiddenAudsCnt()" class="btn btn-primary" ng-click="hideSelectedAuditions()">
+								<span ng-if="hideSelected == false">
+								Hide Selected
+								</span>
+								<span ng-if="hideSelected == true">
+								Show Hidden
+								</span>
+							</a>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row">
+						<div class="col-md-12">
+							<h3>Notes</h4>
+              <div text-angular ng-model="clientNotes"></div>
+							<button style="float:right" class="btn btn-primary" ng-click="saveClientNote()">Save</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div ng-repeat="(key, note) in project.clientNotes | orderBy:'-date':reverse">
+								<h5><strong>{{::note.date | amDateFormat:'MM/DD/YY h:mm:ss a'}} EST - {{::note.username}}</strong></h5>
+								<div ng-bind-html="note.item"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+
+	</div>
+
+</section>
+
+</div>
+</div>

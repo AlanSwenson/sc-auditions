@@ -1,0 +1,142 @@
+<section data-ng-controller="TalentsController" data-ng-init="findLimitWithFilter()">
+    <div class="page-header">
+        <h1>Talent</h1>
+        <a class="btn btn-primary" href="#!/talents/create">Create New Talent</a>
+    </div>
+    <div class="row">
+      <div class="col-lg-3 col-md-3 col-sm-3">
+        <label>Search by First Name:</label>
+        <input ng-model="filter.fName" class="form-control" ng-change="findLimitWithFilter()">
+      </div>
+      <div class="col-lg-3 col-md-3 col-sm-3">
+        <label>Search by Last Name:</label>
+        <input ng-model="filter.lName" class="form-control" ng-change="findLimitWithFilter()">
+      </div>
+      <div class="col-lg-3 col-md-3 col-sm-3">
+        <label>Search by Email:</label>
+        <input ng-model="filter.email" class="form-control" ng-change="findLimitWithFilter()">
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <div class="btn-group" data-toggle="buttons" style="padding-top:15px">
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.gender" btn-radio="'male'">Male</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.gender" btn-radio="'female'">Female</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.gender" btn-radio="">All</label>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+          <div class="btn-group" data-toggle="buttons" style="padding-top:15px">
+              <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.unionStatus" btn-radio="'union'">Union</label>
+              <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.unionStatus" btn-radio="'non-union'">Non-union</label>
+              <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.unionStatus" btn-radio="['union','non-union']">Union and Non-union</label>
+              <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.unionStatus" btn-radio="">All</label>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <label>Emailer</label>
+            <input ng-change="findLimitWithFilter()" type="checkbox" ng-model="filter.type" ng-true-value="'email'" ng-false-value="''" class="form-control">
+        </div>
+    </div>
+    <div class="row" style="padding-bottom:10px">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <div class="btn-group" data-toggle="buttons" style="padding-top:15px">
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.ageRange" btn-radio="'kid'">Kid</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.ageRange" btn-radio="'teen'">Teen</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.ageRange" btn-radio="'adult'">Adult</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.ageRange" btn-radio="">All</label>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            <select ng-change="findLimitWithFilter()" ng-model="filter.locationISDN" class="form-control" style="margin-top:15px">
+                <option value="">All Locations</option>
+                <option ng-repeat="item in locations" value="{{item}}">{{item}}</option>
+            </select>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="btn-group" data-toggle="buttons" style="padding-top:15px">
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.typeCasts" btn-radio="'African-American'">African-American</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.typeCasts" btn-radio="'British'">British</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.typeCasts" btn-radio="'Spanish'">Spanish</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.typeCasts" btn-radio="'Foreign Language'">Foreign Language</label>
+                <label ng-change="findLimitWithFilter()" class="btn btn-primary" ng-model="filter.typeCasts" btn-radio="">All</label>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+            <select ng-init="limit = 20" ng-model="limit" class="form-control" ng-change="findLimitWithFilter()">
+                <option value="5" selected>Show 5 per page</option>
+                <option value="10">Show 10 per page</option>
+                <option value="15">Show 15 per page</option>
+                <option value="20">Show 20 per page</option>
+                <option value="30">Show 30 per page</option>
+                <option value="50">Show 50 per page</option>
+                <option value="100">Show 100 per page</option>
+                <option value="200">Show 200 per page</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-2 col-md-2 col-sm-2">
+          <p style="margin-top:27px">
+            {{(limit*currentPage)+1}}-{{limit*(currentPage+1)}} Talent(s) of {{talentsTotalCnt}}
+          </p>
+      </div>
+      <div class="col-lg-10 col-md-10 col-sm-10">
+          <div class="text-center">
+          <ul class="pagination">
+              <li ng-class="{disabled: currentPage == 0}">
+                  <a href ng-click="changePage(currentPage-1)">« Prev</a>
+              </li>
+              <li ng-repeat="n in range(0, Math.floor(talentsTotalCnt/limit))" ng-class="{active: n == currentPage}" ng-click="setPage()">
+                  <a href ng-bind="n + 1">1</a>
+              </li>
+              <li ng-class="{disabled: currentPage == Math.floor(talentsTotalCnt/limit)}">
+                  <a href ng-click="changePage(currentPage+1)">Next »</a>
+              </li>
+          </ul>
+          </div>
+      </div>
+    </div>
+    <div class="list-group item-list">
+        <a data-ng-repeat="talent in talents" data-ng-href="#!/talents/{{talent._id}}" class="list-group-item">
+            <small class="list-group-item-text">
+                Added
+                <span data-ng-bind="talent.created | amDateFormat:'MM/DD/YY h:mm:ss a'"></span>
+            </small>
+            <h4 class="list-group-item-heading">{{::talent.name}} {{::talent.lastName}}</h4>
+            <p><strong>Phone Number</strong> {{::talent.phone | tel}} <strong>Phone Number Alt</strong> {{::talent.phone2 | tel}}<br>
+            <strong>Email</strong> {{::talent.email}} <strong>Email Alt</strong> {{::talent.email2}} <br>
+            <strong>Location:</strong> {{::talent.locationISDN}} <br>
+            <strong>Union Status</strong>
+            <span ng-repeat="(key, usval) in talent.unionStatus">{{usval}} </span></p>
+        </a>
+    </div>
+    <div class="row">
+      <div class="col-lg-2 col-md-2 col-sm-2">
+          <p style="margin-top:27px">
+            {{(limit*currentPage)+1}}-{{limit*(currentPage+1)}} Talent(s) of {{talentsTotalCnt}}
+          </p>
+      </div>
+      <div class="col-lg-10 col-md-10 col-sm-10">
+          <div class="text-center">
+          <ul class="pagination">
+              <li ng-class="{disabled: currentPage == 0}">
+                  <a href ng-click="changePage(currentPage-1)">« Prev</a>
+              </li>
+              <li ng-repeat="n in range(0, Math.floor(talentsTotalCnt/limit))" ng-class="{active: n == currentPage}" ng-click="setPage()">
+                  <a href ng-bind="n + 1">1</a>
+              </li>
+              <li ng-class="{disabled: currentPage == Math.floor(talentsTotalCnt/limit)}">
+                  <a href ng-click="changePage(currentPage+1)">Next »</a>
+              </li>
+          </ul>
+          </div>
+      </div>
+    </div>
+    <div class="alert alert-warning text-center" data-ng-hide="!talents.$resolved || talents.length">
+        No Talents yet, why don't you <a href="/#!/talents/create">create one</a>?
+    </div>
+</section>

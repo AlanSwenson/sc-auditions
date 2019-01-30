@@ -1,0 +1,16 @@
+
+	<p>Dear {{user.firstName}}:</p>
+
+	<p>Your audition project: {{project.title}} has been booked!</p>
+
+	<p>Here are links to your selections;</p>
+
+	{% autoescape false %}{{bookedText}}{% endautoescape %}
+
+	<p>You can review the project by logging in to our dedicated auditions website at <a href="http://www.studiocenterauditions.com/#!/signin'">http://www.studiocenterauditions.com/#!/signin</a>.</p>
+
+	<p>We’ll be contacting you shortly about scheduling these awesome talent!</p>
+
+	<p>Thank you so much for working with us!</p>
+
+	{% autoescape false %}{{emailSignature}}{% endautoescape %}

@@ -1,0 +1,234 @@
+<section data-ng-controller="TalentsController" data-ng-init="findOne()">
+	<div class="page-header jumbotron">
+		<div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+            	<div class="row">
+					<div>
+						<strong>First Name:</strong>
+						{{::talent.name}}
+					</div>
+					<div>
+						<strong>Last Name:</strong>
+						{{::talent.lastName}}
+					</div>
+					<div>
+						<strong>Last Name Code:</strong>
+						{{::talent.lastNameCode}}
+					</div>
+					<div>
+						<strong>Parent Name:</strong>
+						{{::talent.parentName}}
+					</div>
+					<div>
+						<strong>Gender:</strong>
+						{{::talent.gender}} {{::talent.ageRange}}
+					</div>
+					<div>
+						<strong>Email:</strong>
+						<span ng-if="talent.email">
+							<a href="mailto:{{::talent.email}}">{{::talent.email}}</a>
+						</span>
+					</div>
+					<div><strong>Email Alt:</strong>
+						<span ng-if="talent.email2">
+							<a href="mailto:{{::talent.email2}}">{{::talent.email2}}</a>
+						</span>
+					</div>
+					<div><strong>Phone Number:</strong>
+						<span ng-if="talent.phone">
+							<a href="tel:{{::talent.phone}}">{{::talent.phone | tel}}</a>
+						</span>
+					</div>
+					<div><strong>Phone Number Alt:</strong>
+						<span ng-if="talent.phone2">
+							<a href="tel:{{::talent.phone2}}">{{::talent.phone2 | tel}}</a>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 col-md-6 col-sm-6">
+				<div class="row">
+					<div>
+						<strong>Preferred Contact Lanaguge</strong>
+						{{::talent.prefLanguage}}
+					</div>
+					<div>
+						<strong>Type:</strong>
+						{{::talent.type}}
+					</div>
+					<div>
+						<strong>Union Status:</strong>
+						<span ng-repeat="(key, usval) in talent.unionStatus">{{::usval}} </span>
+						<br>
+						<span ng-repeat="(key, usval) in talent.unionJoined">{{::usval}} </span>
+					</div>
+					<div>
+						<strong>Outage Times:</strong>
+						{{::talent.outageTimes}}
+					</div>
+					<div>
+						<strong>Location/ISDN:</strong>
+						{{::talent.locationISDN}}
+					</div>
+					<div>
+						<strong>Exclusivity:</strong>
+						{{::talent.exclusivity}}
+					</div>
+					<div>
+						<strong>ISDN Line 1:</strong>
+						{{talent.ISDNLine1 | tel}}
+					</div>
+					<div>
+						<strong>ISDN Line 2:</strong>
+						{{talent.ISDNLine2 | tel}}
+					</div>
+					<div>
+						<strong>Source Connect Username:</strong>
+						{{::talent.sourceConnectUsername}}
+					</div>
+					<div>
+						<strong>Producer:</strong>
+						{{::talent.producerOptional}}
+					</div>
+					<div>
+						<strong>StudioCenter.com Demo Link:</strong>
+						<span ng-show="talent.demoLink"><a href="{{talent.demoLink}}">{{talent.demoLink}}</a></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div><strong>Typecasts</strong> <br>
+			<button ng-click="showTypecasts = !showTypecasts" class="btn btn-primary">
+				<span ng-show="showTypecasts == undefined || showTypecasts == false">
+					Show Typecasts
+				</span>
+				<span ng-show="showTypecasts == true">
+					Hide Typecasts
+				</span>
+			</button>
+			<form class="form-horizontal" data-ng-submit="update()" novalidate ng-if="showTypecasts == true">
+	            <div class="controls" ng-module="typecasts">
+	                <div ng-controller="TypecastsController" data-ng-init="find()">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-2 col-sm-2" data-ng-repeat="typecast in typecasts | orderBy:'-sort':reverse">
+                                <div> <strong>{{typecast.name}}</strong></div>
+                                <ul class="list-group">
+                                    <li ng-if="talent.typeCasts.indexOf(attribute) > -1" class="list-group-item" ng-repeat="(key, attribute) in typecast.attributes">
+                                        {{attribute}}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+	                </div>
+	            </div>
+	            <div data-ng-show="error" class="text-danger">
+                    <strong data-ng-bind="error"></strong>
+                </div>
+                <!-- <div class="form-group">
+                    <input type="submit" value="Update" class="btn btn-default">
+                </div> -->
+			</form>
+		</div>
+		<div class="pull-right">
+		<a class="btn btn-primary" href="/#!/talents/{{talent._id}}/edit">
+			<i class="glyphicon glyphicon-edit"> Edit Talent</i>
+		</a>
+		<a class="btn btn-primary" data-ng-click="remove();">
+			<i class="glyphicon glyphicon-trash"> Terminate Talent</i>
+		</a>
+	</div>
+	</div>
+
+	<div class="page-header jumbotron">
+
+        <div class="controls" ng-module="projects">
+            <div ng-controller="TalentsController" data-ng-init="findTalentProjects(talent._id)">
+            	<div class="row">
+					<div class="col-md-10">
+						<h3 style="margin:0;padding:0">Cast For:</h3>
+					</div>
+					<div class="col-md-2">
+						<input type="checkbox" data-ng-model="archived" id="archived" ng-change="findTalentProjects(talent._id)">
+						<label>Archived</label>
+					</div>
+				</div>
+				<div class="table-responsive">
+	        		<table class="table table-striped">
+						<tr>
+							<th>
+								#
+							</th>
+							<th>
+								Project
+							</th>
+							<th>
+								Due By
+							</th>
+							<th>
+								Part
+							</th>
+							<th>
+								Requested
+							</th>
+							<th>
+								Status
+							</th>
+							<th>
+								Email
+							</th>
+							<th>
+								Scripts
+							</th>
+							<th>
+								Notes
+							</th>
+						</tr>
+						<tr data-ng-repeat="(key, project) in projects">
+							<td>
+								{{key + 1}}
+							</td>
+							<td>
+								<strong><a target="_blank" data-ng-href="#!/projects/{{project._id}}">{{project.title}}</a></strong>
+							</td>
+							<td>
+								{{project.estimatedCompletionDate | amDateFormat:'MM/DD/YY h:mm:ss a'}} EST
+							</td>
+							<td>
+								{{project.talent[projectTalentIdx[key]].part}}
+							</td>
+							<td>
+								<span ng-show="project.talent[projectTalentIdx[key]].requested == true">Yes</span>
+							</td>
+							<td>
+								<select ng-model="project.talent[projectTalentIdx[key]].status" ng-init="project.talent[projectTalentIdx[key]].status = project.talent[projectTalentIdx[key]].status || talentStatus[0]" style="width:100px" ng-change="updateTalentStatus(project, projectTalentIdx[key])" ng-options="item for item in talentStatus"></select>
+							</td>
+							<td>
+								<button class="btn btn-primary" ng-click="sendTalentEmail(project.talent[projectTalentIdx[key]], project)">Email</button>
+							</td>
+							<td>
+								<span ng-repeat="(key, script) in project.scripts">
+		            				<a href="/res/scripts/{{project._id}}/{{script.file.name}}" popover="{{script.file.name}}" popover-trigger="mouseenter" popover-placement="top" popover-popup-delay="250" popover-append-to-body="true" target="_blank"><img src="/img/Adobe-Acrobat-icon.png" alt="download PDF"></a>
+		            			</span>
+							</td>
+							<td>
+								{{project.talent[projectTalentIdx[key]].note}}
+							</td>
+						</tr>
+					</table>
+				</div>
+            </div>
+        </div>
+	</div>
+
+	<div class="page-header jumbotron" ng-if="talent">
+            <div data-ng-init="listFilter()">
+            	<h3 style="margin:0;padding:0">Contact Log:</h3>
+            	<div style="max-height:250px;overflow:scroll">
+	            	<div data-ng-repeat="(key, log) in logs">
+	            		<span>{{log.created | amDateFormat:'MM/DD/YY h:mm:ss a'}}</span>
+	            		<span>{{log.description}}</span>
+	            	</div>
+            	</div>
+            </div>
+    </div>
+</section>

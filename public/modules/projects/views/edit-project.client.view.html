@@ -1,0 +1,115 @@
+<section data-ng-controller="ProjectsController" data-ng-init="findOne()">
+    <div class="page-header">
+        <h1>Edit Project</h1>
+    </div>
+    <div class="col-md-12" style="padding-bottom:75px">
+        <form class="form-horizontal" data-ng-submit="update()" novalidate>
+            <fieldset>
+                <div class="form-group">
+                    <label class="control-label" for="name">Title</label>
+                    <div class="controls">
+                        <input type="text" data-ng-model="project.title" id="title" class="form-control" placeholder="Title" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>Due Date/Time (Click to select date and time)</strong>
+                        </div>
+                        <div class="panel-body">
+                            <div class="controls">
+                                <div class="dropdown">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                                        <input type="text" class="form-control" data-ng-model="project.estimatedCompletionDate" readonly>
+                                    </div>
+                                    <datetimepicker data-ng-model="project.estimatedCompletionDate" data-datetimepicker-config="{ minuteStep: 30, dropdownSelector: '#dropdown2' }"/>
+
+                                </div>
+                                 <div style="color:red;font-weight:700">{{dateNotice}}</div>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="name">Description & Specs</label>
+                    <div class="controls">
+                        <div text-angular ng-model="project.description"></div>
+                    </div>
+                </div>
+
+                <ul ng-show="rejFiles.length > 0" class="response" data-ng-show="authentication.user.roles === 'admin' || authentication.user.roles === 'producer/auditions director' || authentication.user.roles === 'audio intern'">
+                    <li class="sel-file" ng-repeat="f in rejFiles">
+                        Rejected file: {{f.name}} - size: {{f.size}}B - type: {{f.type}}
+                    </li>
+                </ul>
+
+                <ul ng-show="files.length > 0" class="response">
+                    <li class="sel-file" ng-repeat="f in files">
+                        <img ng-show="f.dataUrl" ng-src="{{f.dataUrl}}" class="thumb">
+                        <span class="progress" ng-show="f.progress >= 0">
+                            <div style="width:{{f.progress}}%">{{f.progress}}%</div>
+                        </span>
+                        <button class="button" ng-click="f.upload.abort();f.upload.aborted=true"
+                                ng-show="f.upload != null && f.progress < 100 && !f.upload.aborted">Abort</button>
+                        {{f.name}} - size: {{f.size}}B - type: {{f.type}}
+                        <a ng-show="f.result" href="javascript:void(0)" ng-click="f.showDetail = !f.showDetail">details</a>
+                        <div ng-show="f.showDetail">
+                            <br/>
+                            <div data-ng-show="f.result.result == null">{{f.result}}</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" ng-repeat="item in f.result.result">
+                                    <div data-ng-show="item.name">file name: {{item.name}}</div>
+                                    <div data-ng-show="item.fieldName">name: {{item.fieldName}}</div>
+                                    <div data-ng-show="item.size">size on the serve: {{item.size}}</div>
+                                    <div data-ng-show="item.value">value: {{item.value}}</div>
+                                </li>
+                            </ul>
+                            <div data-ng-show="f.result.requestHeaders" class="reqh">request headers: {{f.result.requestHeaders}}</div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="form-group">
+                    <label class="control-label" for="name">Script (PDF only!)</label>
+                    <div class="controls">
+
+                        <input type="file" ng-file-select="uploadScript($files)" ng-model="files" ng-accept="'*.pdf'" ng-model-rejected="rejFiles" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="name">Status</label>
+                    <div class="controls">
+                        <select ng-model="project.status" required>
+                            <option ng-repeat="item in statusOpts" value="{{item}}">{{item}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div data-ng-show="error" class="text-danger">
+                    <strong data-ng-bind="error"></strong>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update" class="btn btn-default">
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+    <div class="container" style="position:fixed;bottom:0;background:#fff;z-index:999;padding-top:5px">
+        <div class="row" data-ng-show="permitRoles(['admin', 'producer/auditions director', 'audio intern'])">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <ul style="clear:both" ng-show="rejFiles.length > 0" class="response">
+                    <li class="sel-file" ng-repeat="f in rejFiles">
+                        Rejected file: {{f.name}} - size: {{f.size}}B - type: {{f.type}}
+                    </li>
+                </ul>
+                <div data-ng-bind="uploadStatus"></div>
+                <progressbar value="uploadprogress" type="success" ng-model="upload"><b>{{uploadfile}}</b></progressbar>
+            </div>
+        </div>
+    </div>
+</section>

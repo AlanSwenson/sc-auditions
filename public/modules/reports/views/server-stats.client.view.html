@@ -1,0 +1,61 @@
+<section data-ng-controller="ReportsController" data-ng-init="systemInfo()">
+    <div class="page-header">
+      <h1>Server Stats</h1>
+      <div class="row">
+      	<div class="col-md-12">
+          <h4>Platform</h4>
+          <p>
+            {{sysstats.platform}}
+          </p>
+
+          <h4>Architecture</h4>
+          <p>
+            {{sysstats.arch}}
+          </p>
+          <h4>CPU(s)</h4>
+          <p>
+            <span ng-repeat="cpu in sysstats.cpus">
+              {{cpu.model}}<br>
+              {{cpu.speed | number:2}} Mhz<br>
+            </span>
+          </p>
+          <h4>Memory</h4>
+          <p>
+            Total: {{(sysstats.totalmem/1024)/1024 | number:2}} MB<br>
+            Free: {{(sysstats.freemem/1024)/1024 | number:2}} MB
+          </p>
+          <h4>Uptime</h4>
+          <p>
+            {{sysstats.uptime/60 | number:2}} minutes<br>
+            {{((sysstats.uptime/60)/60)/24 | number:2}} days
+          </p>
+          <h4>Load Average</h4>
+          <p>
+              <span ng-repeat="load in sysstats.loadavg">
+                {{load | number:4}} %<br>
+              </span>
+          </p>
+          <h4>Software</h4>
+          <p>
+            NodeJS {{sysstats.nodev}}<br>
+            MongoDB {{sysstats.mongov}}
+          </p>
+          <h4>Disks</h4>
+          <table class="table table-striped">
+            <tr>
+              <th>Used</th>
+              <th>Available</th>
+              <th>Total</th>
+              <th>Mount Point</th>
+            </tr>
+            <tr ng-repeat="disk in sysstats.disks">
+              <td>{{disk.used}}</td>
+              <td>{{disk.available}}</td>
+              <td>{{disk.total}}</td>
+              <td>{{disk.mountpoint}}</td>
+            </tr>
+          </table>
+				</div>
+			</div>
+	  </div>
+</section>

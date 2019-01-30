@@ -1,0 +1,29 @@
+<section data-ng-controller="UsersController" data-ng-init="findOne()">
+	<div class="page-header">
+		<h1 data-ng-bind="useredit.displayName"></h1>
+		<p class="list-group-item-heading">
+			Company: {{useredit.company}}<br>
+			Name: {{useredit.displayName}}<br>
+			Username: {{useredit.username}}<br>
+			<span ng-if="authentication.user.roles[0] === 'admin' || authentication.user.roles[0] === 'production coordinator' || authentication.user._id ===  useredit._id">
+				Password: {{decodedPass(useredit.passwordText)}}<br>
+			</span>
+			Email: <a href="mailto:{{useredit.email}}">{{useredit.email}}</a><br>
+			Phone: {{useredit.phone}}</p>
+		<p>Notes: {{user.notes}}</p>
+	</div>
+	<div class="pull-right" ng-show="authentication.user.roles[0] === 'admin' || authentication.user.roles[0] === 'production coordinator'">
+		<a class="btn btn-primary" href="/#!/usersedit/{{useredit._id}}/edit">
+			<i class="glyphicon glyphicon-edit"></i>
+		</a>
+		<a class="btn btn-primary" data-ng-click="remove();">
+			<i class="glyphicon glyphicon-trash"></i>
+		</a>
+	</div>
+	<small>
+		<em class="text-muted">
+			Added
+			<span data-ng-bind="useredit.created | amDateFormat:'MM/DD/YY h:mm:ss a'"></span>
+		</em>
+	</small>
+</section>
